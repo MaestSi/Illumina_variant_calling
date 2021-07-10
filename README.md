@@ -49,5 +49,7 @@ Inputs:
 * \<reference.fasta\>: fasta sequence to be used as a reference for alignment and variant calling
 
 Outputs:
-* 
+* QC: folder containing many sequencing and mapping quality reports
+* \<sample\_name\_mapped\_to_\<reference_name\>\_MarkDup\_Clipped.bam: pre-processed bam file
+* \sample\_name.variants.filtered.vcf.gz: vcf file containing filtered variants
 
