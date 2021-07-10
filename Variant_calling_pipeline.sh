@@ -167,7 +167,7 @@ tabix $SAMPLE_NAME".complete.raw.g.vcf.gz"
 
 #Delete tmp files
 rm $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" $SAMPLE_NAME".variants.filtered_tmp.vcf.gz.tbi" $SAMPLE_NAME".variants.filtered_tmp.vcf.idx" $SAMPLE_NAME".indels.filtered.vcf" $SAMPLE_NAME".snps.filtered.vcf" \
-$SAMPLE_NAME".indels.filtered.vcf.idx" $SAMPLE_NAME".snps.filtered.vcf.idx"  $SAMPLE_NAME".variants.filtered.vcf.idx"
+$SAMPLE_NAME".indels.filtered.vcf.idx" $SAMPLE_NAME".snps.filtered.vcf.idx"  $SAMPLE_NAME".variants.filtered.vcf.idx" $SAMPLE_NAME".complete.raw.g.vcf.idx"
 
 #Run Qualimap
 $QUALIMAP bamqc -bam $BAM_MD_CLIPPED -c -nt $THREADS --java-mem-size=500G
