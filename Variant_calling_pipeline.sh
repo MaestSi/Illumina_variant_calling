@@ -110,7 +110,6 @@ rm $BAM $BAM.bai
 
 #ClipOverlaps
 $FGBIO ClipBam -i $BAM_MD -o $BAM_MD_CLIPPED -r $reference --clip-overlapping-reads -c Hard -m $SAMPLE_NAME"_fgbio_metrics.txt"
-$SAMTOOLS index $BAM_MD_CLIPPED
 
 #Delete tmp BAM file
 rm $BAM_MD $BAM_MD.bai
@@ -128,6 +127,10 @@ $GATK HaplotypeCaller -R $reference -I $BAM_MD_CLIPPED -ERC GVCF --output $SAMPL
 
 #Genotype gVCF
 $GATK GenotypeGVCFs -R $reference -V $SAMPLE_NAME".complete.raw.g.vcf" -G StandardAnnotation -O $SAMPLE_NAME".complete.raw.vcf"
+
+#Compress gVCF
+bgzip $SAMPLE_NAME".complete.raw.g.vcf"
+tabix $SAMPLE_NAME".complete.raw.g.vcf.gz"
 
 #Index featurefile
 $GATK IndexFeatureFile -I $SAMPLE_NAME".complete.raw.vcf"
