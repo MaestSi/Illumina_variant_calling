@@ -119,18 +119,11 @@ $SAMTOOLS flagstat $BAM_MD_CLIPPED > $BAM_MD_CLIPPED.flagstat
 $SAMTOOLS stats $BAM_MD_CLIPPED > $BAM_MD_CLIPPED.stats
 $PICARD CollectInsertSizeMetrics I=$BAM_MD_CLIPPED O=$SAMPLE_NAME"_insert_size_metrics.txt" H=$SAMPLE_NAME"_insert_size_histogram.pdf"
 
-#Evaluate callable loci
-$GATK CallableLoci -R $reference -I $BAM_MD_CLIPPED
-
 #Perform variant calling with HaplotypeCaller
 $GATK HaplotypeCaller -R $reference -I $BAM_MD_CLIPPED -ERC GVCF --output $SAMPLE_NAME".complete.raw.g.vcf" --standard-min-confidence-threshold-for-calling 30.0 --dont-use-soft-clipped-bases true --sample-ploidy $PLOIDY
 
 #Genotype gVCF
 $GATK GenotypeGVCFs -R $reference -V $SAMPLE_NAME".complete.raw.g.vcf" -G StandardAnnotation -O $SAMPLE_NAME".complete.raw.vcf"
-
-#Compress gVCF
-bgzip $SAMPLE_NAME".complete.raw.g.vcf"
-tabix $SAMPLE_NAME".complete.raw.g.vcf.gz"
 
 #Index featurefile
 $GATK IndexFeatureFile -I $SAMPLE_NAME".complete.raw.vcf"
@@ -143,7 +136,7 @@ $GATK VariantFiltration -R $reference -V $SAMPLE_NAME".snps.raw.vcf" \
 --filter-name "Broad_SNP_filter" -O $SAMPLE_NAME".snps.filtered.vcf" ;
 
 #Delete unfiltered SNPs file
-rm $SAMPLE_NAME".snps.raw.vcf"
+rm $SAMPLE_NAME".snps.raw.vcf" rm $SAMPLE_NAME".snps.raw.vcf.idx"
 
 #Filter InDels
 $GATK SelectVariants --select-type-to-exclude SNP --output $SAMPLE_NAME".indels.raw.vcf" -V $SAMPLE_NAME".complete.raw.vcf"
@@ -153,10 +146,10 @@ $GATK VariantFiltration -R $reference -V $SAMPLE_NAME".indels.raw.vcf" \
 --filter-name "Broad_indel_Filter" -O $SAMPLE_NAME".indels.filtered.vcf" ;
 
 #Delete unfiltered InDels file
-rm $SAMPLE_NAME".indels.raw.vcf"
+rm $SAMPLE_NAME".indels.raw.vcf" $SAMPLE_NAME".indels.raw.vcf.idx"
 
 #Remove complete unfiltered vcf
-rm $SAMPLE_NAME".complete.raw.vcf"
+rm $SAMPLE_NAME".complete.raw.vcf" $SAMPLE_NAME".complete.raw.vcf.idx"
 
 #Merge SNPs and InDels
 $GATK MergeVcfs -I  $SAMPLE_NAME".snps.filtered.vcf" -I $SAMPLE_NAME".indels.filtered.vcf" -O $SAMPLE_NAME".variants.filtered_tmp.vcf"
@@ -164,15 +157,20 @@ bgzip $SAMPLE_NAME".variants.filtered_tmp.vcf"
 tabix $SAMPLE_NAME".variants.filtered_tmp.vcf.gz"
 
 #Keep only filtered variants
-$GATK SelectVariants -R $FASTA --variant $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" --exclude-filtered -O $SAMPLE_NAME".variants.filtered.vcf"
+$GATK SelectVariants -R $reference --variant $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" --exclude-filtered -O $SAMPLE_NAME".variants.filtered.vcf"
 bgzip $SAMPLE_NAME".variants.filtered.vcf"
 tabix $SAMPLE_NAME".variants.filtered.vcf.gz"
 
+#Compress gVCF
+bgzip $SAMPLE_NAME".complete.raw.g.vcf"
+tabix $SAMPLE_NAME".complete.raw.g.vcf.gz"
+
 #Delete tmp files
-rm $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" $SAMPLE_NAME".variants.filtered_tmp.vcf.gz.tbi" $SAMPLE_NAME".indels.filtered.vcf" $SAMPLE_NAME".snps.filtered.vcf"
+rm $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" $SAMPLE_NAME".variants.filtered_tmp.vcf.gz.tbi" $SAMPLE_NAME".variants.filtered_tmp.vcf.idx" $SAMPLE_NAME".indels.filtered.vcf" $SAMPLE_NAME".snps.filtered.vcf" \
+$SAMPLE_NAME".indels.filtered.vcf.idx" $SAMPLE_NAME".snps.filtered.vcf.idx"  $SAMPLE_NAME".variants.filtered.vcf.idx"
 
 #Run Qualimap
-$QUALIMAP bamqc -bam $BAM_MD_CLIPPED -c -nt $threads --java-mem-size=500G
+$QUALIMAP bamqc -bam $BAM_MD_CLIPPED -c -nt $THREADS --java-mem-size=500G
 
 #Move quality check files to QC directory
 mkdir $QC
