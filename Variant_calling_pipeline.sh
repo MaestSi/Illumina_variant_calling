@@ -63,11 +63,15 @@ do
 done
 
 WORKING_DIR=$(realpath $(dirname $reads_R1))
+QC=$WORKING_DIR"/QC"
 SAMPLE_NAME=$(echo $(basename $reads_R1) | sed 's/_R1.*//')
 REF_NAME=$(echo $(basename $reference) | sed 's/\.fa.*//')
 BAM=$WORKING_DIR"/"$SAMPLE_NAME"_mapped_to_"$REF_NAME"_tmp1.bam"
 BAM_MD=$WORKING_DIR"/"$SAMPLE_NAME"_mapped_to_"$REF_NAME"_tmp2.bam"
 BAM_MD_CLIPPED=$WORKING_DIR"/"$SAMPLE_NAME"_mapped_to_"$REF_NAME"_MarkDup_Clipped.bam"
+
+#Reads quality check
+$FASTQC $reads_R1 $reads_R2
 
 #Reads trimming
 $FASTP -i $reads_R1 -I $reads_R2 -o $SAMPLE_NAME"_trimmed1.fastq.gz" -O $SAMPLE_NAME"_trimmed2.fastq.gz" --failed_out $SAMPLE_NAME"_failed.fastq.gz" \
@@ -83,7 +87,7 @@ if [ ! -f "$reference.fai" ]; then
 fi
 
 if [ ! -f "$reference.dict" ]; then
-$JAVA -jar $PICARD CreateSequenceDictionary R=$reference O=$reference".dict"
+  $PICARD CreateSequenceDictionary R=$reference O=$reference".dict"
 fi
 
 #Perform alignment
@@ -95,17 +99,17 @@ $SAMTOOLS index $BAM
 #Statistics
 $SAMTOOLS flagstat $BAM > $BAM.flagstat
 $SAMTOOLS stats $BAM > $BAM.stats
-$JAVA -Xmx8G -jar $PICARD CollectInsertSizeMetrics I=$BAM O=$SAMPLE_NAME"_raw_insert_size_metrics.txt" H=$SAMPLE_NAME"_raw_insert_size_histogram.pdf"
+$PICARD CollectInsertSizeMetrics I=$BAM O=$SAMPLE_NAME"_tmp1_insert_size_metrics.txt" H=$SAMPLE_NAME"_tmp1_insert_size_histogram.pdf"
 
 #MarkDuplicates
-$JAVA -Xmx8G -jar $PICARD MarkDuplicates I=$BAM O=$BAM_MD M=$SAMPLE_NAME"_MarkDuplicates_metrics.txt" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=false
+$PICARD MarkDuplicates I=$BAM O=$BAM_MD M=$SAMPLE_NAME"_MarkDuplicates_metrics.txt" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=false
 $SAMTOOLS index $BAM_MD
 
 #Delete tmp BAM file
 rm $BAM $BAM.bai
 
 #ClipOverlaps
-$JAVA -Xmx8G -Djava.io.tmpdir=$WORKING_DIR -jar $FGBIO ClipBam -i $BAM_MD -o $BAM_MD_CLIPPED -r $reference --clip-overlapping-reads -c Hard -m $SAMPLE_NAME"_fgbio_metrics.txt"
+$FGBIO ClipBam -i $BAM_MD -o $BAM_MD_CLIPPED -r $reference --clip-overlapping-reads -c Hard -m $SAMPLE_NAME"_fgbio_metrics.txt"
 $SAMTOOLS index $BAM_MD_CLIPPED
 
 #Delete tmp BAM file
@@ -114,15 +118,17 @@ rm $BAM_MD $BAM_MD.bai
 #Statistics
 $SAMTOOLS flagstat $BAM_MD_CLIPPED > $BAM_MD_CLIPPED.flagstat
 $SAMTOOLS stats $BAM_MD_CLIPPED > $BAM_MD_CLIPPED.stats
-$JAVA -Xmx8G -jar $PICARD CollectInsertSizeMetrics I=$BAM_MD_CLIPPED O=$SAMPLE_NAME"_insert_size_metrics.txt" H=$SAMPLE_NAME"_insert_size_histogram.pdf"
+$PICARD CollectInsertSizeMetrics I=$BAM_MD_CLIPPED O=$SAMPLE_NAME"_insert_size_metrics.txt" H=$SAMPLE_NAME"_insert_size_histogram.pdf"
 
 #Evaluate callable loci
 $GATK CallableLoci -R $reference -I $BAM_MD_CLIPPED
 
 #Perform variant calling with HaplotypeCaller
 $GATK HaplotypeCaller -R $reference -I $BAM_MD_CLIPPED -ERC GVCF --output $SAMPLE_NAME".complete.raw.g.vcf" --standard-min-confidence-threshold-for-calling 30.0 --dont-use-soft-clipped-bases true --sample-ploidy $PLOIDY
+
 #Genotype gVCF
 $GATK GenotypeGVCFs -R $reference -V $SAMPLE_NAME".complete.raw.g.vcf" -G StandardAnnotation -O $SAMPLE_NAME".complete.raw.vcf"
+
 #Index featurefile
 $GATK IndexFeatureFile -I $SAMPLE_NAME".complete.raw.vcf"
 
@@ -154,9 +160,17 @@ $GATK MergeVcfs -I  $SAMPLE_NAME".snps.filtered.vcf" -I $SAMPLE_NAME".indels.fil
 bgzip $SAMPLE_NAME".variants.filtered_tmp.vcf"
 tabix $SAMPLE_NAME".variants.filtered_tmp.vcf.gz"
 
-$GATK SelectVariants -R $FASTA --variant $SAMPLE_NAME".variants.filtered_tmp.vcf.gz"  --exclude-filtered -O $SAMPLE_NAME".variants.filtered.vcf"
+#Keep only filtered variants
+$GATK SelectVariants -R $FASTA --variant $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" --exclude-filtered -O $SAMPLE_NAME".variants.filtered.vcf"
 bgzip $SAMPLE_NAME".variants.filtered.vcf"
 tabix $SAMPLE_NAME".variants.filtered.vcf.gz"
 
 #Delete tmp files
 rm $SAMPLE_NAME".variants.filtered_tmp.vcf.gz" $SAMPLE_NAME".variants.filtered_tmp.vcf.gz.tbi" $SAMPLE_NAME".indels.filtered.vcf" $SAMPLE_NAME".snps.filtered.vcf"
+
+#Run Qualimap
+$QUALIMAP bamqc -bam $BAM_MD_CLIPPED -c -nt $threads --java-mem-size=500G
+
+#Move quality check files to QC directory
+mkdir $QC
+mv *html *stat* *pdf *txt *zip *json $QC
