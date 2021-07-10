@@ -7,7 +7,7 @@
 **Prerequisites**
 
 * Miniconda3.
-Tested with conda 4.9.2.
+Tested with conda 4.10.3.
 ```which conda``` should return the path to the executable.
 If you don't have Miniconda3 installed, you could download and install it with:
 ```
@@ -16,11 +16,11 @@ chmod 755 Miniconda3-latest-Linux-x86_64.sh
 ./Miniconda3-latest-Linux-x86_64.sh
 ```
 
-Then, after completing _Illumina\_variant\_calling_ installation, set the _MINICONDA\_DIR_ variable in **config_Variant_calling_pipeline.sh** to the full path to miniconda3 directory.
+Then, after completing **Illumina\_variant\_calling** installation, set the _MINICONDA\_DIR_ variable in **config_Variant_calling_pipeline.sh** to the full path to miniconda3 directory.
 
 * A reference sequence in fasta format
 
-* A pair of fastq files containing R1 and R2 Illumina reads
+* A pair of fastq files containing R1 and R2 paired-end Illumina reads
 
 
 **Installation**
@@ -50,6 +50,7 @@ Inputs:
 
 Outputs:
 * QC: folder containing many sequencing and mapping quality reports
-* \<sample\_name\_mapped\_to_\<reference_name\>\_MarkDup\_Clipped.bam: pre-processed bam file
+* \<sample\_name\_mapped\_to_\<reference_name\>\_MarkDup\_Clipped.bam: post-processed bam file
 * \<sample\_name\>.variants.filtered.vcf.gz: vcf file containing filtered variants
+* \<sample\_name\>.complete.raw.g.vcf.gz: gvcf file containing genotype at each genomic locus
 
