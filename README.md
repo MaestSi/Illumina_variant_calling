@@ -41,10 +41,13 @@ Then, you can open the **config\_Variant\_calling\_pipeline.sh** file with a tex
 
 ## Usage
 
+
 **Variant_calling_pipeline.sh**
 
 Usage:
 ./Variant_calling_pipeline.sh -1 \<sample\_name_reads_R1.fastq\> -2 \<sample\_name_reads_R2.fastq\> -r \<reference.fasta\>
+
+**Note**: activate the conda environment before running.
 
 Inputs:
 
