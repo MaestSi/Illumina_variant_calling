@@ -1,6 +1,6 @@
 # Illumina_variant_calling
 
-**Illumina_variant_calling** is a pipeline for performing quality check, alignment and variant calling with Illumina paired-end reads.
+**Illumina_variant_calling** is a pipeline for performing quality check, alignment and small variant calling with Illumina paired-end reads.
 
 <p align="center">
   <img src="Figures/Illumina_variant_calling_pipeline.png" alt="drawing" width="400" title="Illumina_variant_calling_pipeline">
