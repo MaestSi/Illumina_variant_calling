@@ -61,3 +61,22 @@ Outputs:
 * \<sample\_name\>.variants.filtered.vcf.gz: vcf file containing filtered variants
 * \<sample\_name\>.complete.raw.g.vcf.gz: gvcf file containing genotype at each genomic locus
 
+## Citation
+
+For further information, please refer to the following manuscripts:
+
+[FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+
+Shifu Chen, Yanqing Zhou, Yaru Chen, Jia Gu, fastp: an ultra-fast all-in-one FASTQ preprocessor, Bioinformatics, Volume 34, Issue 17, 01 September 2018, Pages i884–i890, https://doi.org/10.1093/bioinformatics/bty560
+
+Li H. (2013) Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. [arXiv:1303.3997v2](https://arxiv.org/abs/1303.3997)
+
+Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PMID: 19505943; PMCID: PMC2723002.
+
+[fgbio](https://github.com/fulcrumgenomics/fgbio)
+
+[Picard Tools](http://broadinstitute.github.io/picard/)
+
+Konstantin Okonechnikov, Ana Conesa and Fernando García-Alcalde "Qualimap 2: advanced multi-sample quality control for high-throughput sequencing data." Bioinformatics(2015)
+
+Van der Auwera GA & O'Connor BD. (2020). Genomics in the Cloud: Using Docker, GATK, and WDL in Terra (1st Edition). O'Reilly Media
