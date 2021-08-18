@@ -63,7 +63,7 @@ Outputs:
 
 ## Citation
 
-For further information, please refer to the following manuscripts:
+For further information, please refer to the following manuscripts or repositories:
 
 [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
