@@ -36,6 +36,12 @@ chmod 755 *
 ./install.sh
 ```
 
+Otherwise, you can download a docker image with:
+
+```
+docker pull maestsi/illumina_variant_calling:latest
+```
+
 A conda environment named _Illumina\_variant\_calling_env_ is created, where fastqc, fastp, samtools, bwa, picard, gatk and qualimap are installed.
 Then, you can open the **config\_Variant\_calling\_pipeline.sh** file with a text editor and set the variables _PIPELINE_DIR_ and _MINICONDA_DIR_ to the value suggested by the installation step.
 
