@@ -40,7 +40,7 @@ do
       -2)
            reads_R2=$2
            shift 2
-           echo "reads_R2: $reads_R2"
+           echo "Reads_R2: $reads_R2"
            ;;
       -r)
           reference=$2
