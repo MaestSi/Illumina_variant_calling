@@ -69,6 +69,8 @@ Outputs:
 
 ## Citation
 
+Lopatriello G, Maestri S, Alfano M, Papa R, Di Vittori V, De Antoni L, Bellucci E, Pieri A, Bitocchi E, Delledonne M, Rossato M. CRISPR/Cas9-Mediated Enrichment Coupled to Nanopore Sequencing Provides a Valuable Tool for the Precise Reconstruction of Large Genomic Target Regions. International Journal of Molecular Sciences. 2023; 24(2):1076. https://doi.org/10.3390/ijms24021076
+
 For further information, please refer to the following manuscripts or repositories:
 
 [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
